@@ -1,0 +1,17 @@
+#!/bin/bash
+script_folder=`dirname "$BASH_SOURCE"`
+backup_folder=`dirname "$script_folder"`
+
+readarray -t ignored_folders < "${script_folder}"/ignored_folders
+
+adb shell find /storage/emulated/0 -maxdepth 1 -mindepth 1 >> "${script_folder}"/folders.temp
+readarray -t sdcard_folders < "${script_folder}"/folders.temp
+
+for element in "${sdcard_folders[@]}"; do
+	if [[ "${ignored_folders[*]}" != *"${element}"* ]]; then
+	    adb pull "${element}" "${backup_folder}"
+	fi
+done
+
+# remove temporal file
+rm "${script_folder}"/folders.temp
